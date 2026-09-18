@@ -21,7 +21,7 @@ public class PlayerInventoryUI : MonoBehaviour
 
     private bool isOpen;
     private TMP_Text[] slotLabels;
-    private object[] boundItems; // holds either a Rune or a RuneAbility per slot
+    private object[] boundItems; // holds either a Rune or a RuneAbility per slot. [Model-View-Presenter / Model-View Uncoupling]
 
     
     private void Start()
@@ -35,6 +35,7 @@ public class PlayerInventoryUI : MonoBehaviour
         {
             slotLabels[i] = slotButtons[i].GetComponentInChildren<TMP_Text>();
 
+            // Data Binding
             int index = i;
             slotButtons[i].onClick.AddListener(() => OnSlotClicked(index));
         }
@@ -50,7 +51,7 @@ public class PlayerInventoryUI : MonoBehaviour
 
         if (playerInventory != null)
         {
-            playerInventory.OnInventoryChanged += RefreshSlots;
+            playerInventory.OnInventoryChanged += RefreshSlots; // [Observer Pattern]
         }
     }
 
@@ -59,7 +60,7 @@ public class PlayerInventoryUI : MonoBehaviour
     {
         if (playerInventory != null)
         {
-            playerInventory.OnInventoryChanged -= RefreshSlots;
+            playerInventory.OnInventoryChanged -= RefreshSlots; // [Observer Pattern]
         }
     }
 

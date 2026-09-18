@@ -20,7 +20,7 @@ public class WaterPickup : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         playerInRange = true;
-        playerInventory = other.GetComponent<PlayerInventory>();
+        playerInventory = other.GetComponent<PlayerInventory>(); // [Component Pattern] (Decoupling)
     }
     
     // Detect when the player exits the trigger zone for the water pickup
@@ -44,7 +44,7 @@ public class WaterPickup : MonoBehaviour
     {
         if (playerInventory == null) return;
 
-        Rune emptyBucket = playerInventory.Runes.FirstOrDefault(r => r.RuneType == RuneType.WATER && !r.IsFilled);
+        Rune emptyBucket = playerInventory.Runes.FirstOrDefault(r => r.RuneType == RuneType.WATER && !r.IsFilled); // [Strategy / State Modification]
 
         if (emptyBucket == null)
         {
@@ -52,7 +52,7 @@ public class WaterPickup : MonoBehaviour
             return;
         }
 
-        emptyBucket.Fill();
+        emptyBucket.Fill(); // [Strategy / State Modification]
         Debug.Log("Filled the bucket with water.");
         Destroy(gameObject);
     }

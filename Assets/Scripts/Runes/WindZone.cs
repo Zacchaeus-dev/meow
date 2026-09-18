@@ -28,9 +28,9 @@ public class WindZone : MonoBehaviour
     {
         Vector3 windDirection = transform.forward;
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player")) // [Strategy Pattern] (Type-Based Dispatch)
         {
-            Rigidbody playerRb = other.GetComponent<Rigidbody>();
+            Rigidbody playerRb = other.GetComponent<Rigidbody>(); // [Component Pattern] (Decoupling Patterns)
             if (playerRb != null)
             {
                 ApplyHorizontalWind(playerRb, windDirection);
@@ -39,7 +39,7 @@ public class WindZone : MonoBehaviour
             return;
         }
 
-        MoveableObject movable = other.GetComponent<MoveableObject>();
+        MoveableObject movable = other.GetComponent<MoveableObject>(); // [Strategy Pattern] (Type-Based Dispatch)
         if (movable != null)
         {
             movable.PushContinuous(windDirection, objectPushStrength);

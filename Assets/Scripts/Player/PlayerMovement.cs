@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// [Component Pattern] (Decoupling) - PlayerMovement is a component that can be attached to any GameObject to give it player movement behavior.
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void Update() // [Update Method / Input Separation] (Sequencing Patterns)
     {
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
@@ -49,7 +50,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private void FixedUpdate() // [Update Method / Input Separation] (Sequencing Patterns)
     {
         CalculateMoveDirection();
         MoveCharacter();

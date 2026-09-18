@@ -10,18 +10,18 @@ public abstract class Mechanism : MonoBehaviour
     // Called when the mechanism is triggered (collision/trigger enter, etc.)
     // Override to add mechanism-specific activation behavior,
     // but call base.Activate() to keep ActivationStatus in sync.
-    public virtual void Activate()
+    public virtual void Activate()  // [Template Method Pattern] (Gang of Four/ GoF)
     {
         activationStatus = true;
     }
 
     // Called when the mechanism should deactivate
     // (e.g. player walks away, lever reset, etc.)
-    public virtual void Deactivate()
+    public virtual void Deactivate()  // [Template Method Pattern] (Gang of Four/ GoF)
     {
         activationStatus = false;
     }
 
     // Each mechanism defines its own outcome when activated.
-    public abstract void Effect();
+    public abstract void Effect();  // [Template Method Pattern] (Gang of Four/ GoF)
 }

@@ -21,7 +21,7 @@ public class RunePickup : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         playerInRange = true;
-        playerInventory = other.GetComponent<PlayerInventory>();
+        playerInventory = other.GetComponent<PlayerInventory>(); // [Component Pattern] (Decoupling)
     }
 
     // Ensure the collider is a trigger
@@ -52,7 +52,7 @@ public class RunePickup : MonoBehaviour
             return;
         }
 
-        playerInventory.AddRune(new Rune(runeType));
+        playerInventory.AddRune(new Rune(runeType)); // [Factory / Creational Instantiation]
         Debug.Log($"{runeType} rune picked up.");
 
         Destroy(gameObject);

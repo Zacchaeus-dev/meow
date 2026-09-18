@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class MoveableObject : MonoBehaviour
+public class MoveableObject : MonoBehaviour // [Component Pattern] (Decoupling)
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float weight = 1f;

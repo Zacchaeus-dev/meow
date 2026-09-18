@@ -33,7 +33,7 @@ public class CameraFollow : MonoBehaviour
 
     }
 
-    public void SetTarget(Transform newTarget)
+    public void SetTarget(Transform newTarget) // [Observer / Target Tracking Pattern]
     {
         target = newTarget;
     }

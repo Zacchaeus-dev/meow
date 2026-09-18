@@ -30,9 +30,8 @@ public class Altar : Mechanism
     [SerializeField] private GameObject earthBlockPrefab;
     [SerializeField] private float spawnDistance = 2f;
     [SerializeField] private float spawnHeight = 1f;
-    /// <summary>
-    /// Wind + Float combo effect is a special case where the two runes work together to create an L-shaped current.
-    /// </summary>
+  
+    // Wind + Float combo effect is a special case where the two runes work together to create an L-shaped current.
     [Header("Wind + Float Combo (L-shaped)")]
     [Tooltip("Vertical float zone at the base of the L.")]
     [SerializeField] private GameObject comboFloatZonePrefab;
@@ -41,7 +40,9 @@ public class Altar : Mechanism
     [SerializeField] private GameObject comboWindZonePrefab;
     [Tooltip("How high the float zone lifts before the wind zone takes over.")]
     [SerializeField] private float comboLiftHeight = 4f;
-  
+
+    [Header("Earth + Float Combo")]
+    [SerializeField] private GameObject floatingTerrainPrefab;
     // Each of these tracks the single active instance of its effect per altar,
     // so triggering the same effect twice replaces the old one instead of stacking.
     private GameObject activeFloatZone; // only one float zone per altar at a time
@@ -49,14 +50,22 @@ public class Altar : Mechanism
     private GameObject activeEarthBlock; // only one earth block per altar at a time
     private GameObject activeComboFloatZone;
     private GameObject activeComboWindZone;
+    private GameObject activeFloatingTerrain;
 
     [System.Serializable]
     public struct RuneCombo
     {
         public RuneType runeA;
         public RuneType runeB;
+
+        public RuneCombo(RuneType a, RuneType b)
+        {
+            runeA = a;
+            runeB = b;
+        }
     }
 
+    // [Observer Pattern] (Decoupling) Events to notify the UI when the menu opens/closes and when slots change.
     public event System.Action<PlayerInventory> OnMenuOpened;
     public event System.Action OnMenuClosed;
     public event System.Action OnSlotsChanged;
@@ -69,6 +78,7 @@ public class Altar : Mechanism
         if (other.CompareTag("Player"))
         {
             playerInRange = true;
+            // [Component Pattern] (Decoupling) Get the PlayerInventory component from the player.
             currentInventory = other.GetComponent<PlayerInventory>();
         }
     }
@@ -100,6 +110,7 @@ public class Altar : Mechanism
     }
     // Template Method override: this is what "Activate" specifically means for 
     // an Altar - open the rune menu. base.Activate() keeps Mechanism's shared ActivationStatus flag in sync.
+    // [Template Method Pattern] (Gang of Four/ GoF)
     public override void Activate()
     {
         base.Activate();
@@ -145,6 +156,7 @@ public class Altar : Mechanism
 
     // Template Method override: the actual branching logic for 0/1/2 runes.
     // Effect now fires immediately, spawning results in front of the altar instead of crafting a carryable item.
+    // [Template Method Pattern] (Gang of Four/ GoF)
     public override void Effect()
     {
         bool hasSlot1 = slot1 != null;
@@ -164,9 +176,10 @@ public class Altar : Mechanism
         }
         else
         {
-            if (IsValidCombo(slot1.RuneType, slot2.RuneType))
+            RuneCombo combo = new RuneCombo(slot1.RuneType, slot2.RuneType);
+            if (IsValidCombo(combo))
             {
-                TriggerComboEffect(slot1.RuneType, slot2.RuneType);
+                TriggerComboEffect(combo);
             }
             else
             {
@@ -277,12 +290,11 @@ public class Altar : Mechanism
         Debug.Log("Altar created a terrain block.");
     }
 
-    private bool IsValidCombo(RuneType a, RuneType b)
+    private bool IsValidCombo(RuneCombo runeCombo)
     {
         foreach (var combo in validCombos)
         {
-            if ((combo.runeA == a && combo.runeB == b) ||
-                (combo.runeA == b && combo.runeB == a))
+            if ((combo.runeA == runeCombo.runeA && combo.runeB == runeCombo.runeB) || (combo.runeA == runeCombo.runeB && combo.runeB == runeCombo.runeA))
             {
                 return true;
             }
@@ -290,19 +302,44 @@ public class Altar : Mechanism
         return false;
     }
     // Routes valid combos to their specific implementation. Only Wind + Float is implementd so far, but this is where future combos would be handled.
-    private void TriggerComboEffect(RuneType a, RuneType b)
+    private void TriggerComboEffect(RuneCombo runeCombo)
     {
-        bool isWindFloat = (a == RuneType.WIND && b == RuneType.FLOAT) || (a == RuneType.FLOAT && b == RuneType.WIND);
+        bool isWindFloat = (runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.FLOAT) || (runeCombo.runeA == RuneType.FLOAT && runeCombo.runeB == RuneType.WIND);
+        bool isEarthFloat = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.FLOAT) || (runeCombo.runeA == RuneType.FLOAT && runeCombo.runeB == RuneType.EARTH);
 
         if (isWindFloat)
         {
             SpawnWindFloatCombo();
         }
+        else if (isEarthFloat)
+        {
+            SpawnFloatingTerrain();
+        }
         else 
         {
-            Debug.Log($"Combo effect triggered: {a} + {b}");
+            Debug.Log($"Combo effect triggered: {runeCombo.runeA} + {runeCombo.runeB}");
         }
     }
+
+    // Earth + Float combo: a rising platform the player can stand on and
+    // ride up to a fixed height, like a stairstep.
+    private void SpawnFloatingTerrain()
+    {
+        if (floatingTerrainPrefab == null)
+        {
+            Debug.LogWarning("Floating Platform prefab not assigned on Altar.");
+            return;
+        }
+
+        if (activeFloatingTerrain != null)
+        {
+            Destroy(activeFloatingTerrain);
+        }
+
+        activeFloatingTerrain = Instantiate(floatingTerrainPrefab, GetSpawnPosition(), Quaternion.identity);
+        Debug.Log("Altar created a floating terrain.");
+    }
+
 
     // Wind + Float combo, built as an "L" shape per the designer's intent:
     // a FloatZone lifts the player straight up, and a WindZone positioned above it catches them at the top of that lift and carries them forward.

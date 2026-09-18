@@ -19,7 +19,7 @@ public class FloatZone : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        Rigidbody rb = other.GetComponent<Rigidbody>();
+        Rigidbody rb = other.GetComponent<Rigidbody>(); // [Component Pattern] (Decoupling)
         if (rb == null) return;
 
         // Calculate target Y position inside the zone
