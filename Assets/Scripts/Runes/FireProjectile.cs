@@ -1,0 +1,45 @@
+using UnityEngine;
+
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Collider))]
+public class FireProjectile : MonoBehaviour
+{
+    [SerializeField] private float travelSpeed = 8f;
+    [SerializeField] private float lifeTime = 3f;
+
+    private Rigidbody rb;
+    private Collider caster;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        GetComponent<Collider>().isTrigger = true;
+    }
+    // Launch the projectile in a specified direction, optionally ignoring a specific collider 
+    public void Launch(Vector3 direction, Collider ignoreCollider = null)
+    {
+        rb.linearVelocity = direction.normalized * travelSpeed; 
+
+        if (ignoreCollider != null)
+        {
+            caster = ignoreCollider;
+            Physics.IgnoreCollision(GetComponent<Collider>(), caster);
+        }
+
+        Destroy(gameObject, lifeTime);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other == caster) return;
+
+        if (other.CompareTag("Ice"))
+        {
+            Destroy(other.gameObject);
+            Debug.Log("Fire projectile melted ice.");
+        }
+
+        Destroy(gameObject);
+    }
+}
