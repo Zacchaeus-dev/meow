@@ -24,6 +24,9 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private bool jumpRequested;
 
+    private float speedMultiplier = 1f; // This can be modified by external factors like StickyBlock
+    public void SetSpeedMultiplier (float multiplier) => speedMultiplier = multiplier;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -89,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void MoveCharacter()
     {
-        Vector3 velocity = moveDirection * moveSpeed;
+        Vector3 velocity = moveDirection * moveSpeed * speedMultiplier;
         velocity.y = rb.linearVelocity.y; // Preserve the current vertical velocity (for gravity and jumping)
         rb.linearVelocity = velocity;
     }

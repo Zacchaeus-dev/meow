@@ -22,35 +22,45 @@ public class Altar : Mechanism
     [Tooltip("Define which pairs of RuneTypes combine successfully. Order doesn't matter (WIND+FIRE == FIRE+WIND).")]
     [SerializeField] private List<RuneCombo> validCombos = new List<RuneCombo>();
 
-    [Header("Effect Prefabs")]
-    [Tooltip("Spawned in front of the altar (transform.forward) when the matching rune is used solo.")]
-    [SerializeField] private GameObject fireProjectilePrefab;
-    [SerializeField] private GameObject windZonePrefab;
-    [SerializeField] private GameObject floatZonePrefab;
-    [SerializeField] private GameObject earthBlockPrefab;
+    // [Factory Method Pattern] Delegates construction of solo effects (Fire/Wind/Float/Earth)
+    // to RuneEffectFactory instead of Altar knowing the details of each one itself.
+    [Header("Effect Factory")]
+    [Tooltip("Handles construction of Fire/Wind/Float/Earth solo effects. See RuneEffectFactory.")]
+    [SerializeField] private RuneEffectFactory effectFactory; // concrete type, so it's draggable in the Inspector
     [SerializeField] private float spawnDistance = 2f;
     [SerializeField] private float spawnHeight = 1f;
-  
+
+    // All calls to the factory go through this interface reference, not the
+    // concrete field above - Altar's logic only ever depends on the contract.
+    private IRuneEffectFactory EffectFactory => effectFactory;
+
     // Wind + Float combo effect is a special case where the two runes work together to create an L-shaped current.
     [Header("Wind + Float Combo (L-shaped)")]
     [Tooltip("Vertical float zone at the base of the L.")]
     [SerializeField] private GameObject comboFloatZonePrefab;
     [Tooltip("Horizontal wind zone at the top of the L, catching the player after they float up.")]
-
     [SerializeField] private GameObject comboWindZonePrefab;
     [Tooltip("How high the float zone lifts before the wind zone takes over.")]
     [SerializeField] private float comboLiftHeight = 4f;
 
     [Header("Earth + Float Combo")]
     [SerializeField] private GameObject floatingTerrainPrefab;
-    // Each of these tracks the single active instance of its effect per altar,
-    // so triggering the same effect twice replaces the old one instead of stacking.
-    private GameObject activeFloatZone; // only one float zone per altar at a time
-    private GameObject activeWindZone; // only one wind zone per altar at a time
-    private GameObject activeEarthBlock; // only one earth block per altar at a time
+
+    [Header("Earth + Smooth Combo")]
+    [Tooltip("Same behavior as a solo Earth block, just a smooth-textured variant.")]
+    [SerializeField] private GameObject smoothEarthBlockPrefab;
+
+    [Header("Earth + Sticky Combo")]
+    [Tooltip("Same behavior as a solo Earth block, just a sticky-textured variant.")]
+    [SerializeField] private GameObject stickyEarthBlockPrefab;
+
+    // Each of these tracks the single active instance of its COMBO effect
+    // per altar (solo effects are now tracked inside RuneEffectFactory).
     private GameObject activeComboFloatZone;
     private GameObject activeComboWindZone;
     private GameObject activeFloatingTerrain;
+    private GameObject activeSmoothEarthBlock;
+    private GameObject activeStickyEarthBlock;
 
     [System.Serializable]
     public struct RuneCombo
@@ -108,7 +118,8 @@ public class Altar : Mechanism
             CloseMenu();
         }
     }
-    // Template Method override: this is what "Activate" specifically means for 
+
+    // Template Method override: this is what "Activate" specifically means for
     // an Altar - open the rune menu. base.Activate() keeps Mechanism's shared ActivationStatus flag in sync.
     // [Template Method Pattern] (Gang of Four/ GoF)
     public override void Activate()
@@ -119,6 +130,7 @@ public class Altar : Mechanism
         slot2 = null;
         OnMenuOpened?.Invoke(currentInventory);
     }
+
     // This is called by the UI when the player clicks a rune to place it.
     // Fills whichever slot is empty first. then returns false if both are full.
     public bool TryPlaceRune(Rune rune)
@@ -144,6 +156,7 @@ public class Altar : Mechanism
         OnSlotsChanged?.Invoke();
         return true;
     }
+
     // This closes the menu is the trigger for resolution, not just a UI dismiss action.
     public void CloseMenu()
     {
@@ -199,95 +212,24 @@ public class Altar : Mechanism
         return transform.position + Vector3.up * spawnHeight + transform.forward * spawnDistance;
     }
 
-    // Routes a single valid rune to its matching effect. WATER is intentionally absent
-    // it's a bucket-style item used directly from the inventory, not something that involves the altar at all.
+    // [Factory Method Pattern] Delegates to EffectFactory instead of knowing
+    // construction details for each effect type. WATER is intentionally
+    // absent - it's a bucket-style item used directly from the inventory,
+    // not something that involves the altar at all.
     private void SpawnRuneEffect(RuneType type)
     {
-        switch (type)
+        if (EffectFactory == null)
         {
-            case RuneType.FIRE:
-                SpawnFire();
-                break;
-            case RuneType.WIND:
-                SpawnWind();
-                break;
-            case RuneType.FLOAT:
-                SpawnFloatZone();
-                break;
-            case RuneType.EARTH:
-                SpawnEarthBlock();
-                break;
-            default:
-                Debug.Log($"{type} has no defined solo effect yet.");
-                break;
-        }
-    }
-
-    private void SpawnFire()
-    {
-        if (fireProjectilePrefab == null)
-        {
-            Debug.LogWarning("Fire Projectile prefab not assigned on Altar.");
+            Debug.LogWarning("RuneEffectFactory not assigned on Altar.");
             return;
         }
 
-        GameObject projectile = Instantiate(fireProjectilePrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
-        FireProjectile fire = projectile.GetComponent<FireProjectile>();
-        fire.Launch(transform.forward);
-        Debug.Log("Altar launched a fireball.");
-    }
+        bool spawned = EffectFactory.SpawnEffect(type, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
 
-    private void SpawnWind()
-    {
-        if (windZonePrefab == null)
+        if (!spawned)
         {
-            Debug.LogWarning("Wind Zone prefab not assigned on Altar.");
-            return;
+            Debug.Log($"Failed to spawn effect for {type}.");
         }
-
-        if (activeWindZone != null)
-        {
-            Destroy(activeWindZone);
-        }
-
-        activeWindZone = Instantiate(windZonePrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
-        Debug.Log("Altar created a wind current.");
-    }
-
-    private void SpawnFloatZone()
-    {
-        if (floatZonePrefab == null)
-        {
-            Debug.LogWarning("Float Zone prefab not assigned on Altar.");
-            return;
-        }
-
-        // Only one float zone fixture per altar - replace the old one if it exists.
-        if (activeFloatZone != null)
-        {
-            Destroy(activeFloatZone);
-        }
-
-        activeFloatZone = Instantiate(floatZonePrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
-        Debug.Log("Altar created a float current.");
-    }
-
-    private void SpawnEarthBlock()
-    {
-        if (earthBlockPrefab == null)
-        {
-            Debug.LogWarning("Earth Block prefab not assigned on Altar.");
-            return;
-        }
-
-        // Only one earth block fixture per altar - replace the old one if it exists.
-        if (activeEarthBlock != null)
-        {
-            Destroy(activeEarthBlock);
-        }
-
-        activeEarthBlock = Instantiate(earthBlockPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
-        Debug.Log("Altar created a terrain block.");
     }
 
     private bool IsValidCombo(RuneCombo runeCombo)
@@ -301,11 +243,15 @@ public class Altar : Mechanism
         }
         return false;
     }
-    // Routes valid combos to their specific implementation. Only Wind + Float is implementd so far, but this is where future combos would be handled.
+
+    // Routes valid combos to their specific implementation. Only Wind + Float and
+    // Earth + Float are implemented so far, but this is where future combos would be handled.
     private void TriggerComboEffect(RuneCombo runeCombo)
     {
         bool isWindFloat = (runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.FLOAT) || (runeCombo.runeA == RuneType.FLOAT && runeCombo.runeB == RuneType.WIND);
         bool isEarthFloat = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.FLOAT) || (runeCombo.runeA == RuneType.FLOAT && runeCombo.runeB == RuneType.EARTH);
+        bool isEarthSmooth = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.SMOOTH) || (runeCombo.runeA == RuneType.SMOOTH && runeCombo.runeB == RuneType.EARTH);
+        bool isEarthSticky = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.STICKY) || (runeCombo.runeA == RuneType.STICKY && runeCombo.runeB == RuneType.EARTH);
 
         if (isWindFloat)
         {
@@ -315,10 +261,56 @@ public class Altar : Mechanism
         {
             SpawnFloatingTerrain();
         }
-        else 
+        else if (isEarthSmooth)
+        {
+            SpawnSmoothEarthBlock();
+        }
+        else if (isEarthSticky)
+        {
+            SpawnStickyEarthBlock();
+        }
+        else
         {
             Debug.Log($"Combo effect triggered: {runeCombo.runeA} + {runeCombo.runeB}");
         }
+    }
+
+    // Earth + Sticky combo: same solid-terrain block, but slows the player
+    // via StickyBlock while standing on top of it.
+    private void SpawnStickyEarthBlock()
+    {
+        if (stickyEarthBlockPrefab == null)
+        {
+            Debug.LogWarning("Sticky Earth Block prefab not assigned on Altar.");
+            return;
+        }
+
+        if (activeStickyEarthBlock != null)
+        {
+            Destroy(activeStickyEarthBlock);
+        }
+
+        activeStickyEarthBlock = Instantiate(stickyEarthBlockPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a sticky terrain block.");
+    }
+
+    // Earth + Smooth combo: functionally identical to a solo Earth block -
+    // same spawn logic, just a visually smooth-textured variant prefab.
+    private void SpawnSmoothEarthBlock()
+    {
+        if (smoothEarthBlockPrefab == null)
+        {
+            Debug.LogWarning("Smooth Earth Block prefab not assigned on Altar.");
+            return;
+        }
+
+        if (activeSmoothEarthBlock != null)
+        {
+            Destroy(activeSmoothEarthBlock);
+        }
+
+        activeSmoothEarthBlock = Instantiate(smoothEarthBlockPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a smooth terrain block.");
     }
 
     // Earth + Float combo: a rising platform the player can stand on and
@@ -327,7 +319,7 @@ public class Altar : Mechanism
     {
         if (floatingTerrainPrefab == null)
         {
-            Debug.LogWarning("Floating Platform prefab not assigned on Altar.");
+            Debug.LogWarning("Floating Terrain prefab not assigned on Altar.");
             return;
         }
 
@@ -339,7 +331,6 @@ public class Altar : Mechanism
         activeFloatingTerrain = Instantiate(floatingTerrainPrefab, GetSpawnPosition(), Quaternion.identity);
         Debug.Log("Altar created a floating terrain.");
     }
-
 
     // Wind + Float combo, built as an "L" shape per the designer's intent:
     // a FloatZone lifts the player straight up, and a WindZone positioned above it catches them at the top of that lift and carries them forward.
@@ -360,12 +351,11 @@ public class Altar : Mechanism
             Destroy(activeComboWindZone);
         }
 
-        // Botom of the L: float zone lifts the player straight up.
+        // Bottom of the L: float zone lifts the player straight up.
         Vector3 floatSpawnPos = GetSpawnPosition();
         activeComboFloatZone = Instantiate(comboFloatZonePrefab, floatSpawnPos, Quaternion.LookRotation(transform.forward));
 
-        //Top of the L: wind zone catches the player at the top of the lift.
-        // and pushes them forward for there.
+        // Top of the L: wind zone catches the player at the top of the lift and pushes them forward from there.
         Vector3 windSpawnPos = floatSpawnPos + Vector3.up * comboLiftHeight;
         activeComboWindZone = Instantiate(comboWindZonePrefab, windSpawnPos, Quaternion.LookRotation(transform.forward));
 

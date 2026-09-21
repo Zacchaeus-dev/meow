@@ -2,7 +2,7 @@ using UnityEngine;
 
 // Base class for any trigger-activated mechanism in the game
 // (Altars, Gates, Pressure Plates, Wind Current, etc.)
-public abstract class Mechanism : MonoBehaviour
+public abstract class Mechanism : MonoBehaviour , IInteractable
 {
     [SerializeField] protected bool activationStatus;
     public bool ActivationStatus => activationStatus;

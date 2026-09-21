@@ -2046,7 +2046,7 @@ Transform:
   m_GameObject: {fileID: 660459901}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -9.01605, y: 0.88, z: 20.23}
+  m_LocalPosition: {x: 8.25, y: 0.88, z: -11.07}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5553,6 +5553,7 @@ GameObject:
   - component: {fileID: 1733890546}
   - component: {fileID: 1733890545}
   - component: {fileID: 1733890544}
+  - component: {fileID: 1733890550}
   m_Layer: 0
   m_Name: Altar
   m_TagString: Untagged
@@ -5583,16 +5584,19 @@ MonoBehaviour:
     runeB: 0
   - runeA: 2
     runeB: 1
-  fireProjectilePrefab: {fileID: 1016395725963722217, guid: 575247b6970a42b40806da64716b1060, type: 3}
-  windZonePrefab: {fileID: 6451320440366132075, guid: a2bd89c95f8934b41b62e73b45d70860, type: 3}
-  floatZonePrefab: {fileID: 6111227375174772057, guid: ad46aaf3129357540af7f515e02420d3, type: 3}
-  earthBlockPrefab: {fileID: 2312038023193671714, guid: 041ab2b5ec48c3049b39d9ed173e223b, type: 3}
+  - runeA: 2
+    runeB: 3
+  - runeA: 2
+    runeB: 4
+  effectFactory: {fileID: 1733890550}
   spawnDistance: 5
   spawnHeight: 0
   comboFloatZonePrefab: {fileID: 6111227375174772057, guid: ad46aaf3129357540af7f515e02420d3, type: 3}
   comboWindZonePrefab: {fileID: 6451320440366132075, guid: a2bd89c95f8934b41b62e73b45d70860, type: 3}
   comboLiftHeight: 4
   floatingTerrainPrefab: {fileID: 7277112575472228186, guid: 35f0550a24c15b3478a7c66f49e104a4, type: 3}
+  smoothEarthBlockPrefab: {fileID: 4007673361453374209, guid: 923e6fce41b114343bad135fe00724c5, type: 3}
+  stickyEarthBlockPrefab: {fileID: 1559006031440897924, guid: 67cae21dd413e094bbd38e73f059b625, type: 3}
 --- !u!65 &1733890545
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5707,6 +5711,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1532785551}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &1733890550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733890543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfb0f42007e92a24b8ce7cb93023194b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RuneEffectFactory
+  fireProjectilePrefab: {fileID: 1016395725963722217, guid: 575247b6970a42b40806da64716b1060, type: 3}
+  windZonePrefab: {fileID: 6451320440366132075, guid: a2bd89c95f8934b41b62e73b45d70860, type: 3}
+  floatZonePrefab: {fileID: 6111227375174772057, guid: ad46aaf3129357540af7f515e02420d3, type: 3}
+  earthBlockPrefab: {fileID: 2312038023193671714, guid: 041ab2b5ec48c3049b39d9ed173e223b, type: 3}
 --- !u!1 &1752393167
 GameObject:
   m_ObjectHideFlags: 0
@@ -7086,7 +7106,7 @@ Transform:
   m_GameObject: {fileID: 2067544294}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.0160503, y: 0.88, z: 19.75}
+  m_LocalPosition: {x: 0.64, y: 0.88, z: -11.12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
