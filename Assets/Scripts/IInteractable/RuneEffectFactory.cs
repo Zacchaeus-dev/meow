@@ -12,7 +12,7 @@ using System.Collections.Generic;
 public class RuneEffectFactory : MonoBehaviour, IRuneEffectFactory
 {
     [Header("Solo Effect Prefabs")]
-    [SerializeField] private GameObject fireProjectilePrefab;
+    [SerializeField] private GameObject fireZonePrefab;
     [SerializeField] private GameObject windZonePrefab;
     [SerializeField] private GameObject floatZonePrefab;
     [SerializeField] private GameObject earthBlockPrefab;
@@ -28,7 +28,7 @@ public class RuneEffectFactory : MonoBehaviour, IRuneEffectFactory
         switch (type)
         {
             case RuneType.FIRE:
-                return SpawnFire(position, rotation);
+                return SpawnPersistent(type, fireZonePrefab, position, rotation, "fire zone");
             case RuneType.WIND:
                 return SpawnPersistent(type, windZonePrefab, position, rotation, "wind current");
             case RuneType.FLOAT:
@@ -41,20 +41,20 @@ public class RuneEffectFactory : MonoBehaviour, IRuneEffectFactory
         }
     }
 
-    private bool SpawnFire(Vector3 position, Quaternion rotation)
-    {
-        if (fireProjectilePrefab == null)
-        {
-            Debug.LogWarning("Fire Projectile prefab not assigned on RuneEffectFactory.");
-            return false;
-        }
+    //private bool SpawnFire(Vector3 position, Quaternion rotation)
+    //{
+    //    if (fireProjectilePrefab == null)
+    //    {
+    //        Debug.LogWarning("Fire Projectile prefab not assigned on RuneEffectFactory.");
+    //        return false;
+    //    }
 
-        GameObject projectile = Instantiate(fireProjectilePrefab, position, rotation);
-        FireProjectile fire = projectile.GetComponent<FireProjectile>();
-        fire.Launch(rotation * Vector3.forward);
-        Debug.Log("Spawned a fireball.");
-        return true;
-    }
+    //    GameObject projectile = Instantiate(fireProjectilePrefab, position, rotation);
+    //    FireProjectile fire = projectile.GetComponent<FireProjectile>();
+    //    fire.Launch(rotation * Vector3.forward);
+    //    Debug.Log("Spawned a fireball.");
+    //    return true;
+    //}
 
     // Shared logic for any effect that stays in the world as a single
     // persistent instance per rune type, replacing itself if triggered again.

@@ -38,8 +38,10 @@ public class Altar : Mechanism
     [Header("Wind + Float Combo (L-shaped)")]
     [Tooltip("Vertical float zone at the base of the L.")]
     [SerializeField] private GameObject comboFloatZonePrefab;
+
     [Tooltip("Horizontal wind zone at the top of the L, catching the player after they float up.")]
     [SerializeField] private GameObject comboWindZonePrefab;
+
     [Tooltip("How high the float zone lifts before the wind zone takes over.")]
     [SerializeField] private float comboLiftHeight = 4f;
 
@@ -54,6 +56,21 @@ public class Altar : Mechanism
     [Tooltip("Same behavior as a solo Earth block, just a sticky-textured variant.")]
     [SerializeField] private GameObject stickyEarthBlockPrefab;
 
+    [Header("Fire + Fire Combo")]
+    [Tooltip("If true, Fire + Fire combo can melt BigIce objects. Solo Fire projectiles cannot.")]
+    [SerializeField] private GameObject bigFireZonePrefab;
+
+    [Header("Fire + Wind Combo")]
+    [Tooltip("If true, Fire + Wind combo cant melt BigIce objects.")]
+    [SerializeField] private GameObject longFireZonePrefab;
+
+    [Header("Earth + Earth Combo")]
+    [Tooltip("Same behavior as a solo Earth block, just a sticky-textured variant.")]
+    [SerializeField] private GameObject bigEarthBlockPrefab;
+
+    [Header("Wind + Wind Combo")]
+    [SerializeField] private GameObject strongWindPrefab;
+
     // Each of these tracks the single active instance of its COMBO effect
     // per altar (solo effects are now tracked inside RuneEffectFactory).
     private GameObject activeComboFloatZone;
@@ -61,6 +78,10 @@ public class Altar : Mechanism
     private GameObject activeFloatingTerrain;
     private GameObject activeSmoothEarthBlock;
     private GameObject activeStickyEarthBlock;
+    private GameObject activeBigFireZone;
+    private GameObject activeBigEarthBlock;
+    private GameObject activeLongFireZone;
+    private GameObject activeStrongWind;
 
     [System.Serializable]
     public struct RuneCombo
@@ -252,6 +273,10 @@ public class Altar : Mechanism
         bool isEarthFloat = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.FLOAT) || (runeCombo.runeA == RuneType.FLOAT && runeCombo.runeB == RuneType.EARTH);
         bool isEarthSmooth = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.SMOOTH) || (runeCombo.runeA == RuneType.SMOOTH && runeCombo.runeB == RuneType.EARTH);
         bool isEarthSticky = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.STICKY) || (runeCombo.runeA == RuneType.STICKY && runeCombo.runeB == RuneType.EARTH);
+        bool isFireFire = (runeCombo.runeA == RuneType.FIRE && runeCombo.runeB == RuneType.FIRE);
+        bool isEarthEarth = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.EARTH);
+        bool isWindWind = (runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.WIND);
+        bool isFireWind = (runeCombo.runeA == RuneType.FIRE && runeCombo.runeB == RuneType.WIND || runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.FIRE);
 
         if (isWindFloat)
         {
@@ -269,10 +294,89 @@ public class Altar : Mechanism
         {
             SpawnStickyEarthBlock();
         }
+        else if (isFireFire)
+        {
+            SpawnBigFire();
+        }
+        else if (isFireWind)
+        {
+            SpawnLongFire();
+        }
+        else if (isEarthEarth)
+        {
+            SpawnBigEarthBlock();
+        }
+        else if (isWindWind)
+        {
+            SpawnStrongWind();
+        }
         else
         {
             Debug.Log($"Combo effect triggered: {runeCombo.runeA} + {runeCombo.runeB}");
         }
+    }
+
+    private void SpawnStrongWind()
+    {
+        if (strongWindPrefab == null)
+        {
+            Debug.LogWarning("prefab not assigned");
+            return;
+        }
+        if (strongWindPrefab != null)
+        {
+            Destroy(activeStrongWind);
+        }
+        activeStrongWind = Instantiate(strongWindPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a Strong Wind zone.");
+    }
+
+    private void SpawnBigFire()
+    {
+        if (bigFireZonePrefab == null)
+        {
+            Debug.LogWarning("Big Fire Zone prefab not assigned on Altar.");
+            return;
+        }
+
+        if (activeBigFireZone != null)
+        {
+            Destroy(activeBigFireZone);
+        }
+
+        activeBigFireZone = Instantiate(bigFireZonePrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a Big Fire flamethrower zone.");
+    }
+    private void SpawnLongFire()
+    {
+        if (bigFireZonePrefab == null)
+        {
+            Debug.LogWarning("Big Fire Zone prefab not assigned on Altar.");
+            return;
+        }
+
+        if (activeLongFireZone != null)
+        {
+            Destroy(activeLongFireZone);
+        }
+
+        activeLongFireZone = Instantiate(longFireZonePrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a Big Fire flamethrower zone.");
+    }
+
+    private void SpawnBigEarthBlock()
+    {
+        if (bigEarthBlockPrefab == null)
+        {
+            Debug.LogWarning("Big Earth Block prefab not assigned on Altar.");
+            return;
+        }
+        if (activeBigEarthBlock != null)
+        {
+            Destroy(activeBigEarthBlock);
+        }
+        activeBigEarthBlock = Instantiate(bigEarthBlockPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a Big Earth terrain block.");
     }
 
     // Earth + Sticky combo: same solid-terrain block, but slows the player
