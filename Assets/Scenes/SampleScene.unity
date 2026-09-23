@@ -553,7 +553,7 @@ Transform:
   m_GameObject: {fileID: 170063258}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.09474, y: 0, z: -5.77728}
+  m_LocalPosition: {x: -6.09474, y: 0, z: -9.06}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2369,7 +2369,7 @@ GameObject:
   - component: {fileID: 666702768}
   - component: {fileID: 666702767}
   - component: {fileID: 666702773}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -2797,7 +2797,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 753832018}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6022,7 +6022,7 @@ Transform:
   m_GameObject: {fileID: 1690826823}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 17.98, y: 1.92, z: -4.47}
+  m_LocalPosition: {x: 17.98, y: 1.92, z: 4.6300006}
   m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -6052,7 +6052,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1690826823}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 1000
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -6202,6 +6202,10 @@ MonoBehaviour:
     runeB: 6
   - runeA: 2
     runeB: 2
+  - runeA: 1
+    runeB: 1
+  - runeA: 0
+    runeB: 2
   effectFactory: {fileID: 1733890550}
   spawnDistance: 5
   spawnHeight: 0
@@ -6215,6 +6219,8 @@ MonoBehaviour:
   longFireZonePrefab: {fileID: 2595312687159449601, guid: 3e36d83cc72a5ec409e03530f53e1ea9, type: 3}
   bigEarthBlockPrefab: {fileID: 5986079080784633401, guid: 0b4ea74b11e51aa4c8356de6c0ff6f5e, type: 3}
   strongWindPrefab: {fileID: 1996723719712052531, guid: 66830848f5f861a4d874abced5dca89e, type: 3}
+  strongFloatPrefab: {fileID: 6396511502332835656, guid: a29f4595bacb86d4183920b4339eaa1d, type: 3}
+  windBlockPrefab: {fileID: 6510333134078305257, guid: 05c51d5f2572c004ba33d17000519768, type: 3}
 --- !u!65 &1733890545
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6512,7 +6518,7 @@ Transform:
   m_GameObject: {fileID: 1770635422}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.38, y: 0.34, z: -4.74}
+  m_LocalPosition: {x: 21.38, y: 0.34, z: 4.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

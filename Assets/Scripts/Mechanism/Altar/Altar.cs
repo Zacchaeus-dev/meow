@@ -71,6 +71,11 @@ public class Altar : Mechanism
     [Header("Wind + Wind Combo")]
     [SerializeField] private GameObject strongWindPrefab;
 
+    [Header("Float + Float Combo")]
+    [SerializeField] private GameObject strongFloatPrefab;
+
+    [Header("Earth + Wind Combo")]
+    [SerializeField] private GameObject windBlockPrefab;
     // Each of these tracks the single active instance of its COMBO effect
     // per altar (solo effects are now tracked inside RuneEffectFactory).
     private GameObject activeComboFloatZone;
@@ -82,6 +87,8 @@ public class Altar : Mechanism
     private GameObject activeBigEarthBlock;
     private GameObject activeLongFireZone;
     private GameObject activeStrongWind;
+    private GameObject activeStrongFloatZone;
+    private GameObject activeWindBlock;
 
     [System.Serializable]
     public struct RuneCombo
@@ -277,6 +284,8 @@ public class Altar : Mechanism
         bool isEarthEarth = (runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.EARTH);
         bool isWindWind = (runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.WIND);
         bool isFireWind = (runeCombo.runeA == RuneType.FIRE && runeCombo.runeB == RuneType.WIND || runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.FIRE);
+        bool isFloatFloat = (runeCombo.runeA == RuneType.FLOAT && runeCombo.runeB == RuneType.FLOAT);
+        bool isWindEarth = (runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.EARTH || runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.WIND);
 
         if (isWindFloat)
         {
@@ -310,10 +319,49 @@ public class Altar : Mechanism
         {
             SpawnStrongWind();
         }
+        else if (isFloatFloat)
+        {
+            SpawnStrongFloat();
+        }
+        else if (isWindEarth)
+        {
+            SpawnWindBlock();
+        }
         else
         {
             Debug.Log($"Combo effect triggered: {runeCombo.runeA} + {runeCombo.runeB}");
         }
+
+    }
+
+    private void SpawnWindBlock()
+    {
+        if (windBlockPrefab == null)
+        {
+            Debug.LogWarning("prefab not assigned");
+            return;
+        }
+        if (activeWindBlock != null)
+        {
+            Destroy(activeWindBlock);
+        }
+        activeWindBlock = Instantiate(windBlockPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a Strong Wind zone.");
+    }
+
+    private void SpawnStrongFloat()
+    {
+        if (strongFloatPrefab == null)
+        {
+            Debug.LogWarning("prefab not assigned");
+            return;
+        }
+        if (activeStrongFloatZone != null)
+        {
+            Destroy(activeStrongFloatZone);
+        }
+        activeStrongFloatZone = Instantiate(strongFloatPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a Strong Wind zone.");
     }
 
     private void SpawnStrongWind()
@@ -323,7 +371,7 @@ public class Altar : Mechanism
             Debug.LogWarning("prefab not assigned");
             return;
         }
-        if (strongWindPrefab != null)
+        if (activeStrongWind != null)
         {
             Destroy(activeStrongWind);
         }
@@ -349,7 +397,7 @@ public class Altar : Mechanism
     }
     private void SpawnLongFire()
     {
-        if (bigFireZonePrefab == null)
+        if (longFireZonePrefab == null)
         {
             Debug.LogWarning("Big Fire Zone prefab not assigned on Altar.");
             return;

@@ -19,7 +19,7 @@ public class MoveableObject : MonoBehaviour // [Component Pattern] (Decoupling)
 
         Rigidbody rb = GetComponent<Rigidbody>();
         float appliedForce = (windStrength * moveSpeed) / weight;
-        rb.AddForce(direction.normalized * appliedForce, ForceMode.Impulse);
+        rb.AddForce(direction.normalized * appliedForce, ForceMode.VelocityChange);
     }
 
     // For continuous zones (e.g. a standing wind current) - call every physics tick while inside.
@@ -29,7 +29,7 @@ public class MoveableObject : MonoBehaviour // [Component Pattern] (Decoupling)
 
         Rigidbody rb = GetComponent<Rigidbody>();
         float appliedForce = (windStrength * moveSpeed) / weight;
-        rb.AddForce(direction.normalized * appliedForce, ForceMode.Force);
+        rb.AddForce(direction.normalized * appliedForce, ForceMode.Acceleration);
     }
 
     // Check if the object can be moved based on its type and the wind strength.
