@@ -76,6 +76,15 @@ public class Altar : Mechanism
 
     [Header("Earth + Wind Combo")]
     [SerializeField] private GameObject windBlockPrefab;
+
+    [Header("Earth + Water Combo")]
+    [SerializeField] private GameObject waterBlockPrefab;
+
+    [Header("Wind + Water Combo")]
+    [SerializeField] private GameObject waterSprayPrefab;
+
+    [Header("Water + Water Combo")]
+    [SerializeField] private GameObject compactWaterPrefab;
     // Each of these tracks the single active instance of its COMBO effect
     // per altar (solo effects are now tracked inside RuneEffectFactory).
     private GameObject activeComboFloatZone;
@@ -89,6 +98,9 @@ public class Altar : Mechanism
     private GameObject activeStrongWind;
     private GameObject activeStrongFloatZone;
     private GameObject activeWindBlock;
+    private GameObject activeWaterBlock;
+    private GameObject activeWaterSpray;
+    private GameObject activeCompactWater;
 
     [System.Serializable]
     public struct RuneCombo
@@ -286,6 +298,9 @@ public class Altar : Mechanism
         bool isFireWind = (runeCombo.runeA == RuneType.FIRE && runeCombo.runeB == RuneType.WIND || runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.FIRE);
         bool isFloatFloat = (runeCombo.runeA == RuneType.FLOAT && runeCombo.runeB == RuneType.FLOAT);
         bool isWindEarth = (runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.EARTH || runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.WIND);
+        bool isWaterEarth = (runeCombo.runeA == RuneType.WATER && runeCombo.runeB == RuneType.EARTH || runeCombo.runeA == RuneType.EARTH && runeCombo.runeB == RuneType.WATER);
+        bool isWaterWind = (runeCombo.runeA == RuneType.WATER && runeCombo.runeB == RuneType.WIND || runeCombo.runeA == RuneType.WIND && runeCombo.runeB == RuneType.WATER);
+        bool isWaterWater = (runeCombo.runeA == RuneType.WATER && runeCombo.runeB == RuneType.WATER);
 
         if (isWindFloat)
         {
@@ -327,11 +342,67 @@ public class Altar : Mechanism
         {
             SpawnWindBlock();
         }
+        else if (isWaterEarth)
+        {
+            SpawnWaterBlock();
+        }
+        else if (isWaterWind)
+        {
+            SpawnWaterSpray();
+        }
+        else if (isWaterWater)
+        {
+            SpawnWaterWater();
+        }
         else
         {
             Debug.Log($"Combo effect triggered: {runeCombo.runeA} + {runeCombo.runeB}");
         }
+    }
 
+    private void SpawnWaterWater()
+    {
+        if (compactWaterPrefab == null)
+        {
+            Debug.LogWarning("prefab not assigned");
+            return;
+        }
+        if (activeCompactWater != null)
+        {
+            Destroy(activeCompactWater);
+        }
+        activeCompactWater = Instantiate(compactWaterPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created compact water.");
+    }
+
+    private void SpawnWaterSpray()
+    {
+        if (waterSprayPrefab == null)
+        {
+            Debug.LogWarning("prefab not assigned");
+            return;
+        }
+        if (activeWaterSpray != null)
+        {
+            Destroy(activeWaterSpray);
+        }
+        activeWaterSpray = Instantiate(waterSprayPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created water spray zone.");
+    }
+
+    private void SpawnWaterBlock()
+    {
+        if (waterBlockPrefab == null)
+        {
+            Debug.LogWarning("prefab not assigned");
+            return;
+        }
+        if (activeWaterBlock != null)
+        {
+            Destroy(activeWaterBlock);
+        }
+        activeWaterBlock = Instantiate(waterBlockPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
+        Debug.Log("Altar created a Mud zone.");
     }
 
     private void SpawnWindBlock()
@@ -346,7 +417,7 @@ public class Altar : Mechanism
             Destroy(activeWindBlock);
         }
         activeWindBlock = Instantiate(windBlockPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
-        Debug.Log("Altar created a Strong Wind zone.");
+        Debug.Log("Altar created a moving terrain.");
     }
 
     private void SpawnStrongFloat()
@@ -361,7 +432,7 @@ public class Altar : Mechanism
             Destroy(activeStrongFloatZone);
         }
         activeStrongFloatZone = Instantiate(strongFloatPrefab, GetSpawnPosition(), Quaternion.LookRotation(transform.forward));
-        Debug.Log("Altar created a Strong Wind zone.");
+        Debug.Log("Altar created a Strong float zone.");
     }
 
     private void SpawnStrongWind()
