@@ -4,9 +4,6 @@ public class WaterSpray : MonoBehaviour
 {
     [SerializeField] private float lifeTime = 3f;
 
-    [Tooltip("If true, this fireball can also melt objects tagged 'BigIce' (Fire + Fire combo). A solo Fire projectile leaves this false.")]
-   // [SerializeField] private bool canMeltBigIce = false;
-
     private Collider zoneCollider;
 
     private void Awake()
@@ -17,7 +14,6 @@ public class WaterSpray : MonoBehaviour
 
     private void Start()
     {
-        // Automatically destroy the flamethrower zone once its active duration expires
         Destroy(gameObject, lifeTime);
     }
 
@@ -28,7 +24,6 @@ public class WaterSpray : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        // Re-check objects staying inside the zone (e.g., if ice enters or moves into the fire stream)
         CheckPlants(other);
     }
 

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6250207708585973857}
   m_Layer: 0
   m_Name: WaterSpray
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 4610866230342043819}
   m_Layer: 0
   m_Name: WaterSpray
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
