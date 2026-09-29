@@ -30,7 +30,7 @@ public class Altar : Mechanism
     [SerializeField] private ComboEffectFactory comboEffectFactory;
     [SerializeField] private float spawnDistance = 2f;
     [SerializeField] private float spawnHeight = 1f;
-
+    [SerializeField] bool error = false;
     private IRuneEffectFactory EffectFactory => effectFactory;
     private IComboEffectFactory ComboFactory => comboEffectFactory;
 
@@ -75,6 +75,30 @@ public class Altar : Mechanism
 
     public bool PlayerInRange => playerInRange;
 
+    //public bool Checker(bool Error)
+    //{
+    //   if (Error)
+    //   {
+    //        return true;
+    //   }
+    //   else
+    //   {
+    //        return false;
+    //   }
+    //}
+
+    //public int Checker2(bool Error)
+    //{
+    //    if (Error)
+    //    {
+    //        return 1;
+    //    }
+    //    else
+    //    {
+    //        return 0;
+    //    }
+    //}
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -99,9 +123,9 @@ public class Altar : Mechanism
             Debug.Log("Player left Altar interaction zone!");
         }
     }
-
     private void Update()
     {
+
         if (playerInRange && !menuOpen && Input.GetKeyDown(interactKey))
         {
             Activate();
@@ -111,6 +135,11 @@ public class Altar : Mechanism
         {
             CloseMenu();
         }
+
+        //if (Checker(error) && (Checker2(error) == 1))  //  <== 
+        //{
+        //    Debug.Log("Checker is working");
+        //}
     }
 
     // Template Method override: this is what "Activate" specifically means for
@@ -123,6 +152,8 @@ public class Altar : Mechanism
         slot1 = null;
         slot2 = null;
         OnMenuOpened?.Invoke(currentInventory);
+        Debug.Log($"{name} opened its menu.", this);
+        //error = true;
     }
 
     // This is called by the UI when the player clicks a rune to place it.
@@ -159,6 +190,7 @@ public class Altar : Mechanism
         Effect();
         Deactivate();
         OnMenuClosed?.Invoke();
+        error = false;
     }
 
     // Template Method override: the actual branching logic for 0/1/2 runes.

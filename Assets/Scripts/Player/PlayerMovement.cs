@@ -55,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate() // [Update Method / Input Separation] (Sequencing Patterns)
     {
+        CheckGrounded();
         CalculateMoveDirection();
         MoveCharacter();
         RotateTowardsMovement();
@@ -68,8 +69,10 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = true; // If no ground check is assigned, assume the player is always grounded
             return;
         }
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer); /// this
-
+        //isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer); /// this
+        // Check sphere synchronized with physics tick
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer, QueryTriggerInteraction.Ignore);
+    
     }
 
     private void CalculateMoveDirection()
@@ -92,9 +95,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void MoveCharacter()
     {
-        Vector3 velocity = moveDirection * moveSpeed * speedMultiplier;
-        velocity.y = rb.linearVelocity.y; // Preserve the current vertical velocity (for gravity and jumping)
-        rb.linearVelocity = velocity;
+        Vector3 targetVelocity = moveDirection * moveSpeed * speedMultiplier;
+        // Preserve vertical velocity, but calculate direct delta to avoid overriding gravity contact
+        Vector3 currentVelocity = rb.linearVelocity;
+        Vector3 velocityChange = new Vector3(targetVelocity.x - currentVelocity.x, 0f, targetVelocity.z - currentVelocity.z);
+
+        rb.AddForce(velocityChange, ForceMode.VelocityChange);
+
+        //Vector3 velocity = moveDirection * moveSpeed * speedMultiplier;
+        //velocity.y = rb.linearVelocity.y; // Preserve the current vertical velocity (for gravity and jumping)
+        //rb.linearVelocity = velocity;
     }
 
     private void RotateTowardsMovement()
