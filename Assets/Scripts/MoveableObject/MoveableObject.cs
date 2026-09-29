@@ -41,4 +41,18 @@ public class MoveableObject : MonoBehaviour // [Component Pattern] (Decoupling)
         }
         return true;
     }
+
+    public void HoverContinuous(float targetY, float windStrength, float springStrength, float damping)
+    {
+        if (!CanBeMoved(windStrength)) return;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+
+        float heightError = targetY - rb.position.y;
+        float gravityCounter = -Physics.gravity.y;            // cancels gravity as an acceleration
+        float spring = heightError * springStrength;          // pulls toward the hover height
+        float dampingAccel = -rb.linearVelocity.y * damping;  // stops it bouncing
+
+        rb.AddForce(Vector3.up * (gravityCounter + spring + dampingAccel), ForceMode.Acceleration);
+    }
 }

@@ -3,8 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class WaterPlant : MonoBehaviour
 {
-
-
     [Header("Growth Settings")]
     [Tooltip("Target scale multiplier when fully grown (e.g., 2 = double size).")]
     [SerializeField] private Vector3 targetScale = new Vector3(1f, 3f, 1f);
@@ -59,9 +57,6 @@ public class WaterPlant : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Call this manually or via events to force plant growth.
-    /// </summary>
     public void TriggerGrowth()
     {
         isGrowing = true;

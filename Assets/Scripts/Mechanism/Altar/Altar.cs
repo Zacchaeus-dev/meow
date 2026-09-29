@@ -73,6 +73,8 @@ public class Altar : Mechanism
     public Rune Slot1 => slot1;
     public Rune Slot2 => slot2;
 
+    public bool PlayerInRange => playerInRange;
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -80,6 +82,7 @@ public class Altar : Mechanism
             playerInRange = true;
             // [Component Pattern] (Decoupling) Get the PlayerInventory component from the player.
             currentInventory = other.GetComponent<PlayerInventory>();
+            Debug.Log("Player entered Altar interaction zone!");
         }
     }
 
@@ -93,6 +96,7 @@ public class Altar : Mechanism
             {
                 CloseMenu();
             }
+            Debug.Log("Player left Altar interaction zone!");
         }
     }
 

@@ -15,6 +15,11 @@ public class WindZone : MonoBehaviour
     [Tooltip("Wind strength value checked against each MoveableObject;s Heavy Wind Threshold. Keep this low for a 'weak wind' zone.")]
     [SerializeField] private float objectPushStrength = 1f;
 
+    [Header("Moveable Object Elevation")]
+    [Tooltip("How strongly objects are pulled to the zone's centre height while carried.")]
+    [SerializeField] private float objectHoverSpring = 40f;
+    [SerializeField] private float objectHoverDamping = 6f;
+
     private Collider zoneCollider;
 
     private void Awake()
@@ -43,6 +48,7 @@ public class WindZone : MonoBehaviour
         if (movable != null)
         {
             movable.PushContinuous(windDirection, objectPushStrength);
+            movable.HoverContinuous(zoneCollider.bounds.center.y, objectPushStrength, objectHoverSpring, objectHoverDamping);
         }
     }
     
