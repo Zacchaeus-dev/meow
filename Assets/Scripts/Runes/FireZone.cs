@@ -26,12 +26,14 @@ public class FireZone : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         CheckAndMelt(other);
+        DestoryBlight(other);
     }
 
     private void OnTriggerStay(Collider other)
     {
         // Re-check objects staying inside the zone (e.g., if ice enters or moves into the fire stream)
         CheckAndMelt(other);
+        DestoryBlight(other);
     }
 
     private void CheckAndMelt(Collider other)
@@ -45,6 +47,15 @@ public class FireZone : MonoBehaviour
         {
             Destroy(other.gameObject);
             Debug.Log("Upgraded (Fire + Fire) flamethrower zone melted BigIce.");
+        }
+    }
+
+    private void DestoryBlight(Collider other)
+    {
+        if (other.CompareTag("Blight"))
+        {
+            Destroy(other.gameObject);
+            
         }
     }
 }
