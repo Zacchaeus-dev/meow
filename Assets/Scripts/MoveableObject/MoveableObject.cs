@@ -12,7 +12,7 @@ public class MoveableObject : MonoBehaviour // [Component Pattern] (Decoupling)
 
     public ObjectType ObjectType => objectType;
 
-    // For a single instant hit (e.g. a projectile on contact).
+    // For a single instant hit
     public void Move(Vector3 direction, float windStrength)
     {
         if (!CanBeMoved(windStrength)) return;
@@ -22,7 +22,7 @@ public class MoveableObject : MonoBehaviour // [Component Pattern] (Decoupling)
         rb.AddForce(direction.normalized * appliedForce, ForceMode.VelocityChange);
     }
 
-    // For continuous zones (e.g. a standing wind current) - call every physics tick while inside.
+    // For continuous zone - call every physics tick while inside.
     public void PushContinuous(Vector3 direction, float windStrength)
     {
         if (!CanBeMoved(windStrength)) return;

@@ -65,14 +65,14 @@ public class WindTerrain : MonoBehaviour
             return;
         }
 
-        // 2. Move platform towards target position
+        // Move platform towards target position
         Vector3 newPosition = Vector3.MoveTowards(rb.position, targetPosition, moveSpeed * Time.fixedDeltaTime);
         rb.MovePosition(newPosition);
 
-        // 3. Calculate platform delta movement for this frame
+        // Calculate platform delta movement for this frame
         Vector3 platformDelta = newPosition - lastPosition;
 
-        // 4. If player is standing on top, push their Rigidbody by platformDelta
+        // If player is standing on top, push their Rigidbody by platformDelta
         Collider playerCollider = GetPlayerColliderOnTop();
         if (playerCollider != null)
         {

@@ -1,6 +1,5 @@
 using UnityEngine;
 
-// [Component Pattern] (Decoupling) - FireProjectile is a component that can be attached to any GameObject to give it projectile behavior.
 [RequireComponent(typeof(Collider))]
 public class FireZone : MonoBehaviour
 {

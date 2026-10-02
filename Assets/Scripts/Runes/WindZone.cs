@@ -62,24 +62,6 @@ public class WindZone : MonoBehaviour
     // Casts from the wind zone toward the target. A wall on obstacleLayer anywhere along that line mean the target is in cover.
     private bool IsBlockedByCover(Vector3 targetCenter)
     {
-        //// Flatten wind direction onto the horizontal XZ plane so rays don't shoot up/down
-        //Vector3 windDir = transform.forward;
-        //windDir.y = 0f; // Force horizontal raycast parallel to the ground
-
-        //Vector3 upstreamDirection = -windDir.normalized;
-
-        //// Set a fixed max distance across the wind zone rather than a huge diagonal range
-        //float maxRayDistance = zoneCollider.bounds.size.z;
-
-        //if (Physics.Raycast(targetCenter, upstreamDirection, out RaycastHit hit, maxRayDistance, obstacleLayer))
-        //{
-        //    Debug.DrawLine(targetCenter, hit.point, Color.green);
-        //    return true; // Blocked by wall
-        //}
-
-        //Debug.DrawRay(targetCenter, upstreamDirection * maxRayDistance, Color.red);
-        //return false; // Path clear
-
         Vector3 windDir = transform.forward;
         windDir.y = 0f;
         windDir.Normalize();
