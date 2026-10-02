@@ -64,14 +64,11 @@ public class AltarMenuUI : MonoBehaviour
 
         menuPanel.SetActive(true);
         RefreshUI();
-        //currentInventory = inventory;
-        //menuPanel.SetActive(true);
-        //RefreshUI();
     }
 
     private void HandleMenuClosed()
     {
-        //menuPanel.SetActive(false);
+
         if (activeAltar != null)
         {
             UnsubscribeFrom(activeAltar);
