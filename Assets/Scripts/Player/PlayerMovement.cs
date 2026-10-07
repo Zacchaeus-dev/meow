@@ -8,8 +8,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float rotationSpeed = 12f;
 
-    [Header("Jump")]
-    [SerializeField] private float jumpForce = 8f;
+    //[Header("Jump")]
+    //[SerializeField] private float jumpForce = 8f;
+    //[SerializeField] private Transform groundCheck;
+    //[SerializeField] private float groundCheckRadius = 0.2f;
+    //[SerializeField] private LayerMask groundLayer;
+
+    [Header("Jump Tuning")]
+    [SerializeField] private float jumpForce = 12f; // Increased default force
+    [SerializeField] private float fallMultiplier = 2.5f; // Pulls down faster when falling
+    [SerializeField] private float lowJumpMultiplier = 2f; // Tapping jump gives a short hop
+    [SerializeField] private float gravityScale = 1.5f; // Extra base gravity
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
@@ -27,6 +36,37 @@ public class PlayerMovement : MonoBehaviour
     private float speedMultiplier = 1f; // This can be modified by external factors like StickyBlock
     public void SetSpeedMultiplier (float multiplier) => speedMultiplier = multiplier;
 
+
+    private void FixedUpdate()
+    {
+        CheckGrounded();
+        CalculateMoveDirection();
+        MoveCharacter();
+        RotateTowardsMovement();
+        HandleJump();
+        ApplyCustomGravity(); // Applied every physics tick
+    }
+
+    private void ApplyCustomGravity()
+    {
+        if (isGrounded) return;
+
+        // Falling down -> Apply fallMultiplier
+        if (rb.linearVelocity.y < 0)
+        {
+            rb.linearVelocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+        }
+        // Rising up without holding jump -> Apply lowJumpMultiplier for quick release
+        else if (rb.linearVelocity.y > 0 && !Input.GetButton("Jump"))
+        {
+            rb.linearVelocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+        }
+        // Normal upward arc -> Apply base gravityScale
+        else if (rb.linearVelocity.y > 0)
+        {
+            rb.linearVelocity += Vector3.up * Physics.gravity.y * (gravityScale - 1) * Time.fixedDeltaTime;
+        }
+    }
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -45,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
         float v = Input.GetAxisRaw("Vertical");
         inputVector = new Vector2(h, v).normalized;
 
-        CheckGrounded();
+        //CheckGrounded();
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
@@ -53,14 +93,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void FixedUpdate() // [Update Method / Input Separation] (Sequencing Patterns)
-    {
-        CheckGrounded();
-        CalculateMoveDirection();
-        MoveCharacter();
-        RotateTowardsMovement();
-        HandleJump();
-    }
+    //private void FixedUpdate() // [Update Method / Input Separation] (Sequencing Patterns)
+    //{
+    //    CheckGrounded();
+    //    CalculateMoveDirection();
+    //    MoveCharacter();
+    //    RotateTowardsMovement();
+    //    HandleJump();
+    //}
 
     private void CheckGrounded()
     {
@@ -72,7 +112,7 @@ public class PlayerMovement : MonoBehaviour
         //isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer); /// this
         // Check sphere synchronized with physics tick
         isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer, QueryTriggerInteraction.Ignore);
-    
+
     }
 
     private void CalculateMoveDirection()
@@ -120,10 +160,10 @@ public class PlayerMovement : MonoBehaviour
         jumpRequested = false;
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        if (groundCheck == null) return;
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-    }
+    //private void OnDrawGizmosSelected()
+    //{
+    //    if (groundCheck == null) return;
+    //    Gizmos.color = Color.yellow;
+    //    Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+    //}
 }
